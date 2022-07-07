@@ -50,7 +50,7 @@ router.post('/todo/input', authMiddleware, async (req, res)=> {
         res.status(201).json({ 
             success: true,
             todo,
-            msg: "할 일 목록 추가!"
+            msg: "할 일 목록 추가"
         })
     } catch (error) {
         console.log(error)
