@@ -28,4 +28,6 @@ const studyTimeSchema = new Schema({
     }
 });
 
+
+
 module.exports = mongoose.model("studyTime", studyTimeSchema);
