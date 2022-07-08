@@ -32,7 +32,9 @@ const studySchema = new Schema({
         type: Date,
         default: Date.now()
     },
-    
+    userId : {
+        type: Number
+    },
 });
 
 studySchema.plugin(AutoIncrement, { start_seq: 1, inc_field: "roomId" })

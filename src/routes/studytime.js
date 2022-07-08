@@ -115,13 +115,16 @@ router.post('/timeout', authmiddleware, async (req,res, next) => {
 router.put('/save', authmiddleware, async (req,res,next) => {
   const { userId } = res.locals.user;
   const { todayStart, weekStart } = timeSet();
+  console.log(userId)
   try{
-    const inTime = await Studytime.find({}, {inTimestamp:1})
-    const outTime = await Studytime.find({}, {outTimestamp:1})
+    const inTime = await Studytime.find({userId}, {inTimestamp:1, userId:1})
+    const outTime = await Studytime.find({userId}, {outTimestamp:1, userId:1})
     const allinTime = inTime.map( intime => intime.inTimestamp ).filter(intime => intime !== undefined);
     const arr_allinTime = allinTime[allinTime.length -1]; //맨마지막타임스타드
+    console.log(arr_allinTime)
     const alloutTime = outTime.map( outtime => outtime.outTimestamp ).filter(outtime => outtime !== undefined);
     const arr_alloutTime = alloutTime[alloutTime.length -1]; //맨마지막타임아웃
+    console.log(arr_alloutTime)
     const timedif =  arr_alloutTime - arr_allinTime
     if(arr_alloutTime<arr_allinTime) {
       res.status(200).send({
@@ -131,17 +134,19 @@ router.put('/save', authmiddleware, async (req,res,next) => {
       return;
     } 
     const finaltime = changeTime(timedif)
-
+    
     await Studytime.updateOne({outTimestamp: arr_alloutTime }, {$set:{studytime : finaltime, timedif: timedif}});
     await Studytime.updateOne({inTimestamp: arr_allinTime }, {$set:{studytime : finaltime, timedif: timedif}});
    
     // TotalstudyTime, +1은 다음날을 기준으로 하기위해서 한것이고 -9시간은 UTC와 KRA 시간이 달라서 조정하기 위해 뺀것!!
-    // todayStart,weekStart 이용
     const today = new Date(todayStart);
     const tommorownum = today.getTime() + 24*60*60*1000 - 9*60*60*1000; 
     const todayKST = today.getTime() - 9*60*60*1000;
-    const TimeNum_1 = await Studytime.find({ inTimestamp:{$gt:todayKST,$lt:tommorownum}})
-    const TimeNum_2 = TimeNum_1.map(x=> x.timedif)
+    
+    // todayRecord
+    const TimeNum_1 = await Studytime.find({ userId, inTimestamp:{$gt:todayKST,$lt:tommorownum}})
+    const TimeNum_2 = TimeNum_1.map(x=> x.timedif).filter(x => x !== undefined);
+    console.log(TimeNum_2)
     let sum = 0;
     for(let i = 0; i< TimeNum_2.length; i++) {
       sum += TimeNum_2[i]
@@ -149,6 +154,10 @@ router.put('/save', authmiddleware, async (req,res,next) => {
 
     await Studytime.updateOne({outTimestamp: arr_alloutTime }, {$set:{studytime:changeTime(sum)}});
     await Studytime.updateOne({inTimestamp: arr_allinTime }, {$set:{studytime:changeTime(sum)}});
+
+    // weakRecord 
+
+    const weekNum = await 
 
     res.status(200).send({
       result: true,

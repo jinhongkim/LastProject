@@ -14,11 +14,19 @@ const userSchema = new Schema(
       type: String,
       require: true,
     },
-    snsId: {
-      type: String,
-      require: true,
-      unique: true,
+    // snsId: {
+    //   type: String,
+    //   require: true,
+    //   unique: true,
+    // },
+    hostRoom: {
+      type: Array,
+      default: [],
     },
+    attendRoom: {
+      type: Array,
+      default: [],
+    }
   },
 
   {

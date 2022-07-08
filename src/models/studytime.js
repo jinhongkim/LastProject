@@ -25,7 +25,10 @@ const studyTimeSchema = new Schema({
     },
     timedif: {
         type: Number,
-    }
+    },
+    // weekTime: {
+    //     type: Number,
+    // }
 });
 
 
